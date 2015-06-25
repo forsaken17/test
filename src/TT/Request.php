@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace TT;
 
 /**
@@ -13,48 +7,47 @@ namespace TT;
  *
  * @author tt
  */
-class Response {
+class Request {
 
-    private $data = [];
-    private $error = [];
-    private $type;
+    private function __construct() {
+        $this->server = $_SERVER;
+        $this->headers = $this->getHeaderList();
+        $this->method = strtolower($this->server['REQUEST_METHOD']);
 
-    public function __construct($type = 'json') {
-        $this->type = $type;
-    }
-
-    public function getData() {
-        return $this->data;
-    }
-
-    public function setData(array $data) {
-        $this->data = $data;
-    }
-
-    public function addError($msg) {
-        return $this->error[] = $msg;
-    }
-
-    private function getJsonError() {
-        return $this->error['json'] = json_last_error_msg();
-    }
-
-    public function getJson($body) {
-        return json_encode($body);
-    }
-
-    public function __toString() {
-        $string = '';
-
-        $body = ['data' => $this->data, 'error' => $this->error];
-        if ('json' === $this->type) {
-            if (false === ($string = $this->getJson($body))) {
-                $string = $this->getJson($this->getJsonError());
-            }
-        } else {
-            $string = serialize($body);
+        switch ($this->method) {
+            case 'get':
+                $this->params = $_GET;
+                break;
+            case 'post':
+                $this->params = array_merge($_POST, $_GET);
+                break;
+            case 'put':
+                parse_str(file_get_contents('php://input'), $this->params);
+                break;
+            case 'delete':
+                $this->params = $_GET;
+                break;
+            default:
+                break;
         }
-        return $string;
+    }
+
+    private static $instance;
+
+    public static function instance() {
+        if (null === static::$instance) {
+            static::$instance = new static();
+        }
+        return static::$instance;
+    }
+
+    public function getHeaderList() {
+        foreach ($this->server as $key => $value) {
+            if (0 === strpos($key, 'HTTP_')) {
+                $headers[substr($key, 5)] = $value;
+            }
+        }
+        return $headers;
     }
 
 }

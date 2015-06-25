@@ -17,6 +17,10 @@ class Auth {
         }
     }
 
+    public function verify() {
+        return (!$this->isSignedIn() && !$this->anonymAccess(Router::getActionParams()));
+    }
+
     public function check() {
         $time = filter_input(INPUT_POST, 'time', FILTER_SANITIZE_STRING);
         $cnonce = filter_input(INPUT_POST, 'cnonce', FILTER_SANITIZE_STRING);
@@ -25,6 +29,7 @@ class Auth {
         $nonce = $this->getSessionVar('nonce'); //get last nonce for uid
         $this->setSessionVar('nonce', null); //remove old nonce
         $testHash = hash('sha1', $cnonce . $time . $nonce);
+        $isValidTime = true;
         if (time() > $time) {
             $isValidTime = false;
         }

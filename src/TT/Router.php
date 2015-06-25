@@ -24,8 +24,12 @@ class Router {
     public static $action;
     public static $apiAction;
 
-    public static function getAction() {
-        $uriArray = explode('?', $_SERVER['REQUEST_URI']);
+    public static function getActionParams() {
+        return self::$list[self::$action];
+    }
+
+    public static function getAction(Request $request) {
+        $uriArray = explode('?', $request->server['REQUEST_URI']);
         self::parsePath($uriArray[0]);
         if (!array_key_exists(self::$action, \TT\Router::$list)) {
             self::$action = 'api';
@@ -43,12 +47,6 @@ class Router {
         if ('api' === self::$action && !empty($apiAction) && array_key_exists($apiAction, \TT\Router::$list)) {
             self::$apiAction = $apiAction;
         }
-    }
-
-    public static function execute($action) {
-        $className = 'TT\\Controller\\' . self::$list[$action]['module'];
-        $control = new $className(Locator::instance());
-        return $control->$action();
     }
 
 }

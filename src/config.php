@@ -2,9 +2,14 @@
 
 define('PROJ_ROOT', realpath(__DIR__));
 define('SALT', 'my_key');
-$dsn = 'mysql:host=127.0.0.1;dbname=tododb;charset=UTF8';
-$user = 'root';
-$password = 'root';
+
+function config() {
+    return [
+        'dsn' => 'mysql:host=127.0.0.1;dbname=tododb;charset=UTF8',
+        'dbuser' => 'root',
+        'dbpassword' => 'root',
+    ];
+}
 
 function autoload($className) {
     $className = ltrim($className, '\\');

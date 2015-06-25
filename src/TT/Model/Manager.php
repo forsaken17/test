@@ -12,9 +12,8 @@ use TT\Model\User;
  */
 class Manager {
 
-    public function __construct(Locator $sl) {
-        $this->sl = $sl;
-        $this->db = $sl->db;
+    public function __construct() {
+        $this->db = Locator::instance()->db;
     }
 
     /**
