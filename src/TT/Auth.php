@@ -17,6 +17,20 @@ class Auth {
         }
     }
 
+    public function check() {
+        $time = filter_input(INPUT_POST, 'time', FILTER_SANITIZE_STRING);
+        $cnonce = filter_input(INPUT_POST, 'cnonce', FILTER_SANITIZE_STRING);
+        $hash = filter_input(INPUT_POST, 'hash', FILTER_SANITIZE_STRING);
+        $id = $this->getSessionVar('uid');
+        $nonce = $this->getSessionVar('nonce'); //get last nonce for uid
+        $this->setSessionVar('nonce', null); //remove old nonce
+        $testHash = hash('sha1', $cnonce . $time . $nonce);
+        if (time() > $time) {
+            $isValidTime = false;
+        }
+        return $isValidTime && ($testHash == $hash);
+    }
+
     /**
      *
      * @return mixed
@@ -69,7 +83,7 @@ class Auth {
     }
 
     /**
-     * 
+     *
      */
     public function endSession() {
         if (session_status() == PHP_SESSION_NONE) {
