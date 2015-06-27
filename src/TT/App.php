@@ -9,7 +9,16 @@ namespace TT;
  */
 class App {
 
-    public static function run() {
+    private static $instance;
+
+    public static function instance() {
+        if (null === static::$instance) {
+            static::$instance = new static();
+        }
+        return static::$instance;
+    }
+
+    public function run() {
         try {
             $sl = Locator::instance();
             $action = Router::getAction(Request::instance());
@@ -20,10 +29,11 @@ class App {
             $sl->dbm = new Model\Manager();
             $sl->auth = new Auth();
             $sl->view = new View();
-            if ($sl->auth->verify()) {
+            if ($sl->auth->verify() && 'api' !== $action) {
                 \redirect(\url('login'));
             }
-            echo $response = self::execute($action);
+            $response = self::execute($action);
+            $this->send($response);
         } catch (\PDOException $e) {
             echo 'PDO failed: ' . $e->getMessage();
         } catch (\Exception $exc) {
@@ -35,6 +45,15 @@ class App {
         $className = 'TT\\Controller\\' . Router::getActionParams()['module'];
         $control = new $className(Locator::instance());
         return $control->$action();
+    }
+
+    private function send($response) {
+        $code = Response::getCode();
+        $contentType = Response::getContentType();
+        $headers = 'HTTP/1.1 ' . $code . ' ' . Response::getStatusMessage($code);
+        header($headers);
+        header('Content-Type: ' . $contentType);
+        echo (string) $response;
     }
 
 }

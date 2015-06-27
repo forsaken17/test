@@ -9,6 +9,8 @@ namespace TT;
  */
 class Request {
 
+    private $params;
+
     private function __construct() {
         $this->server = $_SERVER;
         $this->headers = $this->getHeaderList();
@@ -16,16 +18,12 @@ class Request {
 
         switch ($this->method) {
             case 'get':
-                $this->params = $_GET;
-                break;
             case 'post':
+            case 'delete':
                 $this->params = array_merge($_POST, $_GET);
                 break;
             case 'put':
                 parse_str(file_get_contents('php://input'), $this->params);
-                break;
-            case 'delete':
-                $this->params = $_GET;
                 break;
             default:
                 break;
@@ -48,6 +46,15 @@ class Request {
             }
         }
         return $headers;
+    }
+
+    public function getParams() {
+        return $this->params;
+    }
+
+    public function get($name, $filter = null) {
+        $param = isset($this->params[$name]) ? $this->params[$name] : null;
+        return filter_var($param, $filter);
     }
 
 }

@@ -22,14 +22,18 @@ class Auth {
     }
 
     public function check() {
-        $time = filter_input(INPUT_POST, 'time', FILTER_SANITIZE_STRING);
-        $cnonce = filter_input(INPUT_POST, 'cnonce', FILTER_SANITIZE_STRING);
-        $hash = filter_input(INPUT_POST, 'hash', FILTER_SANITIZE_STRING);
+        $request = Request::instance();
+        $time = $request->get('time', FILTER_SANITIZE_STRING);
+        $cnonce = $request->get('cnonce', FILTER_SANITIZE_STRING);
+        $hash = $request->get('hash', FILTER_SANITIZE_STRING);
         $id = $this->getSessionVar('uid');
         $nonce = $this->getSessionVar('nonce'); //get last nonce for uid
+        $isValidTime = true;
+        if (!$id || !$nonce) {
+            $isValidTime = false;
+        }
         $this->setSessionVar('nonce', null); //remove old nonce
         $testHash = hash('sha1', $cnonce . $time . $nonce);
-        $isValidTime = true;
         if (time() > $time) {
             $isValidTime = false;
         }

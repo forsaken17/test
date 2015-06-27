@@ -3,5 +3,5 @@
 namespace TT;
 
 require_once '../src/config.php';
-App::run();
+App::instance()->run();
 exit;

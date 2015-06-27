@@ -15,37 +15,33 @@ class Api extends Front {
         parent::__construct($sl);
     }
 
-    public function api() {
-        $response = new Response();
-        if ($auth = $this->sl->auth->check() && $modelName = \TT\Router::$apiAction) {
-            $response->setData($this->makeCall($modelName));
-        }
-
+    public function auth() {
+        $response = new Response('json');
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $password = sha1(filter_input(INPUT_POST, 'password') . SALT);
-        if ($email && $password) {
-            try {
-                if ($user = $this->dbm->findUserByEmailAndPassword($email, $password)) {
-                    $this->sl->auth->setSessionVar('uid', $user->id);
-                    $this->sl->auth->setSessionVar('nonce', $this->sl->auth->makeToken());
-                    $response->setData(['nonce' => $this->sl->auth->getSessionVar('nonce')]);
-                    $auth = true;
-                }
-            } catch (\Exception $exc) {
-                $this->sl->auth->setSessionVar('error_msg', $exc->getMessage());
-                $auth = false;
+        try {
+            if (!($user = $this->dbm->findUserByEmailAndPassword($email, $password))) {
+                throw new \Exception('Unauthorized', 401);
             }
+            $this->sl->auth->setSessionVar('uid', $user->id);
+            $this->sl->auth->setSessionVar('nonce', $this->sl->auth->makeToken());
+            $response->setData(['nonce' => $this->sl->auth->getSessionVar('nonce')]);
+        } catch (\Exception $e) {
+            $response->setError($e->getMessage());
+            $response->setCode($e->getCode());
         }
-        if (!$auth) {
-            $response->addError('auth failed');
-        }
+
         return $response;
     }
 
-    private function makeCall($modelName) {
-//        return ['some' => 'text', $modelName];
+    public function api() {
+        $response = new Response('json');
         try {
-            if (null == $modelName) {
+            if (!$this->sl->auth->check()) {
+                throw new \Exception('Unauthorized', 401);
+            }
+
+            if (null === ($modelName = \TT\Router::$apiAction)) {
                 throw new \Exception('Method not allowed', 405);
             }
             $controller = new \ReflectionClass('TT\\Controller\\' . ucfirst($modelName));
@@ -55,28 +51,33 @@ class Api extends Front {
             $request = Request::instance();
             try {
                 $method = $controller->getMethod($request->method);
-            } catch (\ReflectionException $re) {
+            } catch (\ReflectionException $e) {
                 throw new \Exception('Unsupported HTTP method ' . $request->method, 405);
             }
             if (!$method->isStatic()) {
                 $controller = $controller->newInstance($request);
-                if (!$controller->checkAuth()) {
+                if (!$controller->checkUserPermission()) {
                     throw new \Exception('Unauthorized', 401);
                 }
                 $method->invoke($controller);
                 $data = $controller->getResponse();
-                $responseStatus = $controller->getResponseStatus();
+                $code = $controller->getResponseCode();
             } else {
                 throw new \Exception('Static methods not supported in Controllers', 500);
             }
             if (is_null($data)) {
                 throw new \Exception('Method not allowed', 405);
             }
-        } catch (\Exception $re) {
-            $responseStatus = $re->getCode();
-            $data = array('ErrorCode' => $re->getCode(), 'ErrorMessage' => $re->getMessage());
+            $this->sl->auth->setSessionVar('nonce', $nonce = $this->sl->auth->makeToken());
+            $data['nonce'] = $nonce;
+            $response->setCode($code);
+            $response->setData($data);
+        } catch (\Exception $e) {
+            $response->setError($e->getMessage());
+            $response->setCode($e->getCode());
         }
-        return [$data, $responseStatus];
+
+        return $response;
     }
 
 }

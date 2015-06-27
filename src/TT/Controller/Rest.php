@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace TT\Controller;
 
 /**
@@ -17,21 +11,21 @@ abstract class Rest {
 
     protected $request;
     protected $response;
-    protected $responseStatus;
+    protected $responseCode;
 
     public function __construct($request) {
         $this->request = $request;
     }
 
-    final public function getResponseStatus() {
-        return $this->responseStatus;
+    final public function getResponseCode() {
+        return $this->responseCode;
     }
 
     final public function getResponse() {
         return $this->response;
     }
 
-    public function checkAuth() {
+    public function checkUserPermission() {
         return true;
     }
 

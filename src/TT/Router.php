@@ -11,15 +11,18 @@ class Router {
     public static $list = [
         'login' => ['module' => 'User', 'anonymity' => true],
         'register' => ['module' => 'User', 'anonymity' => true],
-        'api' => ['module' => 'Api', 'anonymity' => true],
-        'test' => ['module' => 'Api'],
         'logout' => ['module' => 'User'],
+        //
         'inbox' => ['module' => 'Task'],
         'archive' => ['module' => 'Task'],
         'delete' => ['module' => 'Task'],
         'edit' => ['module' => 'Task'],
         'changeState' => ['module' => 'Task'],
         'changeCategory' => ['module' => 'Task'],
+        //
+        'auth' => ['module' => 'Api', 'anonymity' => true],
+        'api' => ['module' => 'Api'],
+        'test' => ['module' => 'Api'],
     ];
     public static $action;
     public static $apiAction;
