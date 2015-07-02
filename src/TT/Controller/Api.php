@@ -3,7 +3,8 @@
 namespace TT\Controller;
 
 use TT\Request,
-    TT\Response;
+    TT\Response,
+    TT\Router;
 
 /**
  *
@@ -37,13 +38,14 @@ class Api extends Front {
     public function api() {
         $response = new Response('json');
         try {
-            if (!$this->sl->auth->check()) {
-                throw new \Exception('Unauthorized', 401);
-            }
-
             if (null === ($modelName = \TT\Router::$apiAction)) {
                 throw new \Exception('Method not allowed', 405);
             }
+
+            if (!$this->sl->auth->check() && !$this->sl->auth->anonymAccess(Router::getActionParams($modelName))) {
+                throw new \Exception('Unauthorized', 401);
+            }
+
             $controller = new \ReflectionClass('TT\\Controller\\' . ucfirst($modelName));
             if (!$controller->isInstantiable()) {
                 throw new \Exception('Bad Request', 400);

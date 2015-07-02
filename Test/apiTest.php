@@ -4,10 +4,10 @@ $fields = array('email' => 'ateamdev@gmail.com', 'password' => '123qwe');
 $postvars = http_build_query($fields);
 $url = 'http://todo/auth';
 if (1) {
-    $url .='?XDEBUG_SESSION_START=netbeans-xdebug';
+    $url .='&XDEBUG_SESSION_START=netbeans-xdebug';
 }
 
-function request($url, $method, $postvars = null, $newSession = false) {
+function request($url, $method, $auth = null, $postvars = null, $newSession = false) {
     $cookie = 'cookie.txt';
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -16,6 +16,9 @@ function request($url, $method, $postvars = null, $newSession = false) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 //curl_setopt($ch, CURLOPT_VERBOSE, 1);
     curl_setopt($ch, CURLOPT_HEADER, 1);
+    if ($auth) {
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: ' . json_encode($auth)]);
+    }
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
     if ($newSession) {
         curl_setopt($ch, CURLOPT_COOKIESESSION, true);
@@ -31,7 +34,7 @@ function request($url, $method, $postvars = null, $newSession = false) {
     return [substr($response, 0, $headerSize), substr($response, $headerSize)];
 }
 
-list($header, $bodyRaw) = request($url, 'post', $postvars, true);
+list($header, $bodyRaw) = request($url, 'post', null, $postvars, true);
 
 echo $header, "\n", $bodyRaw, "\n";
 
@@ -46,13 +49,13 @@ if (empty($body['error'])) {
 //post
 $cnonce = md5(uniqid('auth' . rand(1, 999), true));
 $time = time() + 60;
-$fields = array('cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce));
-var_dump($fields);
-$postvars = http_build_query($fields);
+$auth = ['cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce)];
+//var_dump($fields);
+//$postvars = http_build_query($fields);
 
 $url = 'http://todo/api/test';
 
-list($header, $bodyRaw) = request($url, 'post', $postvars);
+list($header, $bodyRaw) = request($url, 'post', $auth);
 echo $header, "\n", $bodyRaw, "\n";
 $body = json_decode($bodyRaw, true);
 
@@ -67,13 +70,11 @@ if (empty($body['error'])) {
 $nonce = $data['nonce'];
 $cnonce = md5(uniqid('auth' . rand(1, 999), true));
 $time = time() + 60;
-$fields = array('cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce));
-var_dump($fields);
-$postvars = http_build_query($fields);
+$auth = ['cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce)];
 
 $url = 'http://todo/api/test';
 
-list($header, $bodyRaw) = request($url, 'get', $postvars);
+list($header, $bodyRaw) = request($url, 'get', $auth);
 echo $header, "\n", $bodyRaw, "\n";
 $body = json_decode($bodyRaw, true);
 
@@ -87,13 +88,11 @@ if (empty($body['error'])) {
 $nonce = $data['nonce'];
 $cnonce = md5(uniqid('auth' . rand(1, 999), true));
 $time = time() + 60;
-$fields = array('cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce));
-var_dump($fields);
-$postvars = http_build_query($fields);
+$auth = ['cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce)];
 
 $url = 'http://todo/api/test';
 
-list($header, $bodyRaw) = request($url, 'delete', $postvars);
+list($header, $bodyRaw) = request($url, 'delete', $auth);
 echo $header, "\n", $bodyRaw, "\n";
 $body = json_decode($bodyRaw, true);
 
@@ -107,13 +106,11 @@ if (empty($body['error'])) {
 $nonce = $data['nonce'];
 $cnonce = md5(uniqid('auth' . rand(1, 999), true));
 $time = time() + 60;
-$fields = array('cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce));
-var_dump($fields);
-$postvars = http_build_query($fields);
+$auth = ['cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce)];
 
 $url = 'http://todo/api/test';
 
-list($header, $bodyRaw) = request($url, 'put', $postvars);
+list($header, $bodyRaw) = request($url, 'put', $auth, http_build_query(['id' => 1]));
 echo $header, "\n", $bodyRaw, "\n";
 $body = json_decode($bodyRaw, true);
 

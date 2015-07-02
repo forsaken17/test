@@ -8,6 +8,14 @@ namespace TT\Model;
  */
 abstract class Entity {
 
+    protected $dataholder = [];
+
+    public function __construct(array $data = null) {
+        if (null !== $data) {
+            $this->dataholder = $data;
+        }
+    }
+
     private function dataFieldExists($field) {
         return 'dataholder' == $field || array_key_exists($field, $this->dataholder);
     }

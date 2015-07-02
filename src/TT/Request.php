@@ -9,7 +9,8 @@ namespace TT;
  */
 class Request {
 
-    private $params;
+    private $params = [];
+    private $headers = [];
 
     private function __construct() {
         $this->server = $_SERVER;
@@ -46,6 +47,10 @@ class Request {
             }
         }
         return $headers;
+    }
+
+    public function getHeader($name) {
+        return isset($this->headers[$name]) ? $this->headers[$name] : null;
     }
 
     public function getParams() {

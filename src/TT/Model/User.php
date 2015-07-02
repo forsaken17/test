@@ -16,10 +16,4 @@ class User extends Entity {
         'admin' => '',
     ];
 
-    public function __construct(array $data = null) {
-        if (null !== $data) {
-            $this->dataholder = $data;
-        }
-    }
-
 }

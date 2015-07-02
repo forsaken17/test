@@ -23,9 +23,10 @@ class Auth {
 
     public function check() {
         $request = Request::instance();
-        $time = $request->get('time', FILTER_SANITIZE_STRING);
-        $cnonce = $request->get('cnonce', FILTER_SANITIZE_STRING);
-        $hash = $request->get('hash', FILTER_SANITIZE_STRING);
+        $auth = json_decode($request->getHeader('AUTHORIZATION'), true);
+        $time = filter_var($auth['time'], FILTER_SANITIZE_STRING);
+        $cnonce = filter_var($auth['cnonce'], FILTER_SANITIZE_STRING);
+        $hash = filter_var($auth['hash'], FILTER_SANITIZE_STRING);
         $id = $this->getSessionVar('uid');
         $nonce = $this->getSessionVar('nonce'); //get last nonce for uid
         $isValidTime = true;

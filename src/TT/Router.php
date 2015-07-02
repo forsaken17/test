@@ -23,12 +23,15 @@ class Router {
         'auth' => ['module' => 'Api', 'anonymity' => true],
         'api' => ['module' => 'Api'],
         'test' => ['module' => 'Api'],
+        'BxBook' => ['module' => 'Api'],
+        'BxBookRating' => ['module' => 'Api', 'anonymity' => true],
+        'BxUser' => ['module' => 'Api'],
     ];
     public static $action;
     public static $apiAction;
 
-    public static function getActionParams() {
-        return self::$list[self::$action];
+    public static function getActionParams($actionName = null) {
+        return isset(self::$list[$actionName]) ? self::$list[$actionName] : self::$list[self::$action];
     }
 
     public static function getAction(Request $request) {
