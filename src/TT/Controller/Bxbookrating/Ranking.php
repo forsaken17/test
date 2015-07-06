@@ -2,6 +2,8 @@
 
 namespace TT\Controller\Bxbookrating;
 
+use TT\Controller\Rest;
+
 /**
  *
  * @author tt
@@ -9,23 +11,25 @@ namespace TT\Controller\Bxbookrating;
 class Ranking extends Rest {
 
     public function get() {
-        $this->response = array('TestResponse' => 'I am GET response. Variables sent are - ' . http_build_query($this->request->getParams()));
+        $country = $this->request->get('country', FILTER_SANITIZE_STRING);
+        $direction = $this->request->get('direction', FILTER_SANITIZE_STRING);
+        $limit = $this->request->get('limit', FILTER_SANITIZE_NUMBER_INT);
+        $offset = $this->request->get('offset', FILTER_SANITIZE_NUMBER_INT);
+        $result = $this->dbm->findBookRatingByCountry($country, ['order' => 'rank', 'direction' => $direction], ['limit' => $limit, 'offset' => $offset]);
+        $this->response = $result;
         $this->responseCode = 200;
     }
 
     public function post() {
-        $this->response = array('TestResponse' => 'I am POST response. Variables sent are - ' . http_build_query($this->request->getParams()));
-        $this->responseCode = 201;
+        throw new \Exception('Unsupported HTTP method ' . $this->request->method, 405);
     }
 
     public function put() {
-        $this->response = array('TestResponse' => 'I am PUT response. Variables sent are - ' . http_build_query($this->request->getParams()));
-        $this->responseCode = 200;
+        throw new \Exception('Unsupported HTTP method ' . $this->request->method, 405);
     }
 
     public function delete() {
-        $this->response = array('TestResponse' => 'I am DELETE response. Variables sent are - ' . http_build_query($this->request->getParams()));
-        $this->responseCode = 200;
+        throw new \Exception('Unsupported HTTP method ' . $this->request->method, 405);
     }
 
 }

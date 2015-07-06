@@ -53,8 +53,10 @@ $auth = ['cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . 
 //var_dump($fields);
 //$postvars = http_build_query($fields);
 
-$url = 'http://todo/api/test';
-
+$url = 'http://todo/api/bxbookrating';
+if (1) {
+    $url .='&XDEBUG_SESSION_START=netbeans-xdebug';
+}
 list($header, $bodyRaw) = request($url, 'post', $auth);
 echo $header, "\n", $bodyRaw, "\n";
 $body = json_decode($bodyRaw, true);
@@ -72,8 +74,10 @@ $cnonce = md5(uniqid('auth' . rand(1, 999), true));
 $time = time() + 60;
 $auth = ['cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce)];
 
-$url = 'http://todo/api/test';
-
+$url = 'http://todo/api/bxbook';
+if (1) {
+    $url .='&XDEBUG_SESSION_START=netbeans-xdebug';
+}
 list($header, $bodyRaw) = request($url, 'get', $auth);
 echo $header, "\n", $bodyRaw, "\n";
 $body = json_decode($bodyRaw, true);
@@ -90,8 +94,10 @@ $cnonce = md5(uniqid('auth' . rand(1, 999), true));
 $time = time() + 60;
 $auth = ['cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce)];
 
-$url = 'http://todo/api/test';
-
+$url = 'http://todo/api/bxuser';
+if (1) {
+    $url .='&XDEBUG_SESSION_START=netbeans-xdebug';
+}
 list($header, $bodyRaw) = request($url, 'delete', $auth);
 echo $header, "\n", $bodyRaw, "\n";
 $body = json_decode($bodyRaw, true);
@@ -108,8 +114,10 @@ $cnonce = md5(uniqid('auth' . rand(1, 999), true));
 $time = time() + 60;
 $auth = ['cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce)];
 
-$url = 'http://todo/api/test';
-
+$url = 'http://todo/api/bxuser';
+if (1) {
+    $url .='&XDEBUG_SESSION_START=netbeans-xdebug';
+}
 list($header, $bodyRaw) = request($url, 'put', $auth, http_build_query(['id' => 1]));
 echo $header, "\n", $bodyRaw, "\n";
 $body = json_decode($bodyRaw, true);

@@ -1,6 +1,6 @@
 <?php
 
-$url = 'http://ptest/api/bxbookrating/ranking?filter=country';
+$url = 'http://ptest/api/bxbookrating/ranking/?country=usa&limit=5&offset=1';
 if (1) {
     $url .='&XDEBUG_SESSION_START=netbeans-xdebug';
 }

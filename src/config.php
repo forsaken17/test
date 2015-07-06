@@ -5,9 +5,9 @@ define('SALT', 'my_key');
 
 function config() {
     return [
-        'dsn' => 'mysql:host=127.0.0.1;dbname=ptest;charset=UTF8',
+        'dsn' => 'mysql:host=127.0.0.1;dbname=tododb;charset=UTF8',
         'dbuser' => 'root',
-        'dbpassword' => '',
+        'dbpassword' => 'root',
     ];
 }
 

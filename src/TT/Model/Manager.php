@@ -2,8 +2,10 @@
 
 namespace TT\Model;
 
-use TT\Locator;
-use TT\Model\User;
+use TT\Model\User,
+    TT\Model\Bxbookrating,
+    TT\Model\Bxbook,
+    TT\Model\Bxuser;
 
 /**
  * entity manager
@@ -12,8 +14,44 @@ use TT\Model\User;
  */
 class Manager {
 
-    public function __construct() {
-        $this->db = Locator::instance()->db;
+    public function __construct(\PDO $db) {
+        $this->db = $db;
+    }
+
+    public function findBookRatingByCountry($country, array $sort = [], array $limit = []) {
+        $tableBxbookrating = Bxbookrating::getTableName();
+        $tableBxbook = Bxbook::getTableName();
+        $tableBxuser = Bxuser::getTableName();
+
+        $sqlLimit = '';
+        if (!empty($limit['limit']) && array_key_exists('offset', $limit)) {
+            $sqlLimit = ' limit ' . (!$limit['offset'] ? 0 : $limit['offset']) . ', ' . (!$limit['limit'] ? 10 : $limit['limit']);
+        }
+        $sqlSort = '';
+        if (!empty($sort['order']) && array_key_exists('direction', $sort)) {
+            $sqlSort = ' ORDER BY ' . $sort['order'] . ' ' . ('asc' == $sort['direction'] ? 'asc' : 'desc');
+        }
+        $where = "where un.Location like :search";
+        $prepaired = [':search' => "%$country"];
+
+        $sql = "select rt.ISBN, b.`Book-Title`, sum(rt.`Book-rating`) as rank
+                from `$tableBxbookrating` as rt
+                inner join `$tableBxuser` as un on rt.`User-ID`=un.`User-ID`
+                inner join `$tableBxbook` as b on rt.`ISBN`=b.`ISBN`
+                $where
+                group by rt.ISBN
+                $sqlSort
+                $sqlLimit
+                ";
+        $sth = $this->db->prepare($sql);
+        $sth->execute($prepaired);
+        $sth->setFetchMode(\PDO::FETCH_ASSOC);
+        $data = $sth->fetchALL();
+
+        if (!$data) {
+            $data = [];
+        }
+        return $data;
     }
 
     /**
@@ -66,7 +104,7 @@ class Manager {
 
         $sql = "SELECT id, title, priority, duedate, state, category, user_id "
                 . "from {$tableName} $where $sqlSort";
-        $sth = $this->sl->db->prepare($sql);
+        $sth = $this->db->prepare($sql);
         $sth->execute($prepaired);
         $sth->setFetchMode(\PDO::FETCH_ASSOC);
         $data = $sth->fetchALL();

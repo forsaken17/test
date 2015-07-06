@@ -21,12 +21,13 @@ class App {
     public function run() {
         try {
             $sl = Locator::instance();
-            $action = Router::getAction(Request::instance());
+            $sl->request = Request::instance();
+            $action = Router::getAction($sl->request);
             $cfg = config();
             $sl->db = new \PDO($cfg['dsn'], $cfg['dbuser'], $cfg['dbpassword']);
             $sl->db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-            $sl->dbm = new Model\Manager();
+            $sl->dbm = new Model\Manager($sl->db);
             $sl->auth = new Auth();
             $sl->view = new View();
             if ($sl->auth->verify() && 'api' !== $action) {

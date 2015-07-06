@@ -7,7 +7,7 @@ namespace TT\Model;
  *
  * @author tt
  */
-class BxUser extends Entity {
+class Bxuser extends Entity {
 
     protected static $tableName = 'BX-Users';
     protected $dataholder = [

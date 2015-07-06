@@ -2,6 +2,8 @@
 
 namespace TT\Controller;
 
+use TT\Locator;
+
 /**
  * Description of Rest
  *
@@ -13,8 +15,10 @@ abstract class Rest {
     protected $response;
     protected $responseCode;
 
-    public function __construct($request) {
-        $this->request = $request;
+    public function __construct(Locator $sl) {
+        $this->sl = $sl;
+        $this->request = $sl->request;
+        $this->dbm = $sl->dbm;
     }
 
     final public function getResponseCode() {

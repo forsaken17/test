@@ -4,7 +4,8 @@ namespace TT\Controller;
 
 use TT\Request,
     TT\Response,
-    TT\Router;
+    TT\Router,
+    TT\Locator;
 
 /**
  *
@@ -12,7 +13,7 @@ use TT\Request,
  */
 class Api extends Front {
 
-    public function __construct(\TT\Locator $sl) {
+    public function __construct(Locator $sl) {
         parent::__construct($sl);
     }
 
@@ -46,21 +47,21 @@ class Api extends Front {
                 throw new \Exception('Unauthorized', 401);
             }
             $path = '';
-            foreach ($actionParams['resource'] as $part){
-                $path .= '\\'.ucfirst($part);
+            foreach ($actionParams['resource'] as $part) {
+                $path .= '\\' . ucfirst($part);
             }
             $controller = new \ReflectionClass('TT\\Controller' . $path);
             if (!$controller->isInstantiable()) {
                 throw new \Exception('Bad Request', 400);
             }
-            $request = Request::instance();
+            $request = $this->sl->request;
             try {
                 $method = $controller->getMethod($request->method);
             } catch (\ReflectionException $e) {
                 throw new \Exception('Unsupported HTTP method ' . $request->method, 405);
             }
             if (!$method->isStatic()) {
-                $controller = $controller->newInstance($request);
+                $controller = $controller->newInstance($this->sl);
                 if (!$controller->checkUserPermission()) {
                     throw new \Exception('Unauthorized', 401);
                 }
