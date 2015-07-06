@@ -1,12 +1,12 @@
 <?php
 
-namespace TT\Controller;
+namespace TT\Controller\Bxbookrating;
 
 /**
  *
  * @author tt
  */
-class BxBook extends Rest {
+class Ranking extends Rest {
 
     public function get() {
         $this->response = array('TestResponse' => 'I am GET response. Variables sent are - ' . http_build_query($this->request->getParams()));

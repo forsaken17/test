@@ -6,7 +6,7 @@ namespace TT\Controller;
  *
  * @author tt
  */
-class BxBookRating extends Rest {
+class Bxbook extends Rest {
 
     public function get() {
         $this->response = array('TestResponse' => 'I am GET response. Variables sent are - ' . http_build_query($this->request->getParams()));

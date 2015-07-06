@@ -41,12 +41,15 @@ class Api extends Front {
             if (null === ($modelName = \TT\Router::$apiAction)) {
                 throw new \Exception('Method not allowed', 405);
             }
-
-            if (!$this->sl->auth->check() && !$this->sl->auth->anonymAccess(Router::getActionParams($modelName))) {
+            $actionParams = Router::getActionParams($modelName);
+            if (!$this->sl->auth->check() && !$this->sl->auth->anonymAccess($actionParams)) {
                 throw new \Exception('Unauthorized', 401);
             }
-
-            $controller = new \ReflectionClass('TT\\Controller\\' . ucfirst($modelName));
+            $path = '';
+            foreach ($actionParams['resource'] as $part){
+                $path .= '\\'.ucfirst($part);
+            }
+            $controller = new \ReflectionClass('TT\\Controller' . $path);
             if (!$controller->isInstantiable()) {
                 throw new \Exception('Bad Request', 400);
             }

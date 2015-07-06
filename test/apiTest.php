@@ -1,8 +1,8 @@
 <?php
 
-$fields = array('email' => 'ateamdev@gmail.com', 'password' => '123qwe');
+$fields = array('email' => 'test@tess.tt', 'password' => '123qwe');
 $postvars = http_build_query($fields);
-$url = 'http://todo/auth';
+$url = 'http://ptest/auth';
 if (1) {
     $url .='&XDEBUG_SESSION_START=netbeans-xdebug';
 }

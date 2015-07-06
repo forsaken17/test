@@ -1,6 +1,6 @@
 <?php
 
-$url = 'http://todo/api/BxBookRating?filter=country';
+$url = 'http://ptest/api/bxbookrating/ranking?filter=country';
 if (1) {
     $url .='&XDEBUG_SESSION_START=netbeans-xdebug';
 }
@@ -23,7 +23,7 @@ function request($url, $method, $auth = null, $postvars = null, $newSession = fa
     }
     curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie);
     curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 600);
     $response = curl_exec($ch);
     $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
 
