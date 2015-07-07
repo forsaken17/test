@@ -12,7 +12,7 @@ class Response {
     private $nonce;
     private $data = [];
     private $error = [];
-    private static $type;
+    private static $type = 'html';
     private static $code = 200;
     private static $codes = array(
         100 => 'Continue',

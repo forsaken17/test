@@ -5,7 +5,7 @@ namespace TT\Controller;
 use TT\Locator;
 
 /**
- * base controller 
+ * base controller
  *
  * @author tt
  */
@@ -20,6 +20,10 @@ class Front {
     public function __construct(Locator $sl) {
         $this->sl = $sl;
         $this->dbm = $this->sl->dbm;
+    }
+
+    public function index() {
+        return 'index';
     }
 
 }

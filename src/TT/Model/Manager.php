@@ -68,7 +68,7 @@ class Manager {
         $sth->setFetchMode(\PDO::FETCH_ASSOC);
         $data = $sth->fetch();
         if (!$data) {
-            throw new \Exception('user not found');
+            throw new \Exception('wrong credentials');
         }
         return new User($data);
     }
@@ -160,7 +160,7 @@ class Manager {
         array_walk($keyList, function (&$val) {
             $val = ':' . str_replace(['-'], '', $val);
         });
-        $map = array_merge(array_combine($keyList, $data),[':id' => $entity->id]);
+        $map = array_merge(array_combine($keyList, $data), [':id' => $entity->id]);
         $result = $sth->execute($map);
         return $result && $sth->rowCount();
     }

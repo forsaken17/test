@@ -23,13 +23,7 @@ class Router implements Injectable {
         'register' => ['module' => 'User', 'anonymity' => true],
         'logout' => ['module' => 'User'],
         //
-        'inbox' => ['module' => 'Task'],
-        'archive' => ['module' => 'Task'],
-        'delete' => ['module' => 'Task'],
-        'edit' => ['module' => 'Task'],
-        'changeState' => ['module' => 'Task'],
-        'changeCategory' => ['module' => 'Task'],
-            //
+        'index' => ['module' => 'Front'],
     ];
     public static $action;
     public static $apiAction;
@@ -46,7 +40,7 @@ class Router implements Injectable {
         $uriArray = explode('?', $this->request->server['REQUEST_URI']);
         $this->parsePath($uriArray[0]);
         if (!array_key_exists(self::$action, self::$list)) {
-            self::$action = 'api';
+            self::$action = 'index';
         }
         return self::$action;
     }
