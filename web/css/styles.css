@@ -1,0 +1,18 @@
+body{color:#333;}
+.hBlue{color:#66c}
+a{}
+a:hover{color:#33f}
+a:visited{color:#66c}
+.table{border-collapse: collapse;}
+.table td, .table th{border: powderblue 1px solid; padding:5px;}
+
+.hidden{display: none;}
+.logout{float:right};
+
+td.done-tick{color: #0c6; cursor: pointer;}
+.done-tick:hover{color: green}
+.done-row{background-color: yellowgreen;}
+.archive-row{background-color: lightgray;}
+
+.red{color: orangered;}
+.orange{color: orange;}
