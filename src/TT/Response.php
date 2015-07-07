@@ -62,7 +62,7 @@ class Response {
         'html' => 'text/html'
     );
 
-    public function __construct($type = 'html') {
+    public function __construct(Locator $sl, $type = 'html') {
         self::$type = $type;
     }
 
@@ -89,7 +89,7 @@ class Response {
     public function setData(array $data) {
         $this->data = $data;
     }
-    
+
     public function setNonce($nonce) {
         $this->nonce = $nonce;
     }

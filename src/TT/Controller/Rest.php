@@ -29,10 +29,6 @@ abstract class Rest {
         return $this->response;
     }
 
-    public function checkUserPermission() {
-        return true;
-    }
-
     // @codeCoverageIgnoreStart
     abstract public function get();
 

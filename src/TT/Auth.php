@@ -22,7 +22,7 @@ class Auth {
     }
 
     public function check() {
-        $request = Request::instance();
+        $request = Locator::instance()->request;
         $auth = json_decode($request->getHeader('AUTHORIZATION'), true);
         $time = filter_var($auth['time'], FILTER_SANITIZE_STRING);
         $cnonce = filter_var($auth['cnonce'], FILTER_SANITIZE_STRING);

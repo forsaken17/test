@@ -6,7 +6,7 @@ namespace TT;
  * basic routing
  * @author tt
  */
-class Router {
+class Router implements Injectable {
 
     public static $list = [
         'bxbookrating/ranking' => ['module' => 'Api', 'resource' => ['bxbookrating', 'ranking'], 'anonymity' => true],
@@ -34,20 +34,24 @@ class Router {
     public static $action;
     public static $apiAction;
 
+    public function __construct(Locator $sl) {
+        $this->request = $sl->request;
+    }
+
     public static function getActionParams($actionName = null) {
         return isset(self::$list[$actionName]) ? self::$list[$actionName] : self::$list[self::$action];
     }
 
-    public static function getAction(Request $request) {
-        $uriArray = explode('?', $request->server['REQUEST_URI']);
-        self::parsePath($uriArray[0]);
+    public function getAction() {
+        $uriArray = explode('?', $this->request->server['REQUEST_URI']);
+        $this->parsePath($uriArray[0]);
         if (!array_key_exists(self::$action, self::$list)) {
             self::$action = 'api';
         }
         return self::$action;
     }
 
-    private static function parsePath($pathRaw) {
+    private function parsePath($pathRaw) {
         $pathRaw = preg_replace('@[\&\?](.*)@', '', $pathRaw);
         preg_match_all('@([^\/]*)@', $pathRaw, $actionList);
         if (empty($actionList[1])) {
@@ -60,10 +64,10 @@ class Router {
         if (!empty($action) && array_key_exists($action, self::$list)) {
             self::$action = $action;
         }
-        self::findApiAction($actionList);
+        $this->findApiAction($actionList);
     }
 
-    private static function findApiAction($actionList) {
+    private function findApiAction($actionList) {
         $apiAction = array_filter(array_keys(self::$list), function(&$val) use ($actionList) {
             $rAction = explode('/', trim($val, '/'));
             $result = 0;
@@ -71,7 +75,7 @@ class Router {
                 if (!empty($rAction[$i]) && $rAction[$i] === $actionList[$i]) {
                     $result++;
                 } else if (!empty($rAction[$i]) && preg_match('@\{([^\}]*)}@', $rAction[$i], $match) && !empty($actionList[$i])) {
-                    Request::instance()->set($match[1], $actionList[$i]);
+                    $this->request->set($match[1], $actionList[$i]);
                     $result++;
                 } else {
                     $result--;
@@ -83,6 +87,10 @@ class Router {
         if ('api' === self::$action && !empty($apiAction = array_shift($apiAction))) {
             self::$apiAction = $apiAction;
         }
+    }
+
+    public function getApiAction() {
+        return self::$apiAction;
     }
 
 }

@@ -9,22 +9,22 @@ namespace TT\Controller;
 class Bxbookrating extends Rest {
 
     public function get() {
-        $this->response = array('TestResponse' => 'I am GET response. Variables sent are - ' . http_build_query($this->request->getParams()));
+        $this->response = ['GET'];
         $this->responseCode = 200;
     }
 
     public function post() {
-        $this->response = array('TestResponse' => 'I am POST response. Variables sent are - ' . http_build_query($this->request->getParams()));
+        $this->response = ['POST'];
         $this->responseCode = 201;
     }
 
     public function put() {
-        $this->response = array('TestResponse' => 'I am PUT response. Variables sent are - ' . http_build_query($this->request->getParams()));
+        $this->response = ['PUT'];
         $this->responseCode = 200;
     }
 
     public function delete() {
-        $this->response = array('TestResponse' => 'I am DELETE response. Variables sent are - ' . http_build_query($this->request->getParams()));
+        $this->response = ['DELETE'];
         $this->responseCode = 200;
     }
 

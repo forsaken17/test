@@ -18,7 +18,7 @@ class Api extends Front {
     }
 
     public function auth() {
-        $response = new Response('json');
+        $response = $this->sl->create('response', 'json');
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $password = sha1(filter_input(INPUT_POST, 'password') . SALT);
         try {
@@ -37,60 +37,8 @@ class Api extends Front {
     }
 
     public function api() {
-        $response = new Response('json');
-        try {
-            if (null === ($modelName = \TT\Router::$apiAction)) {
-                throw new \Exception('Method not allowed', 405);
-            }
-            $actionParams = Router::getActionParams($modelName);
-            if (!$this->sl->auth->check() && !$this->sl->auth->anonymAccess($actionParams)) {
-                throw new \Exception('Unauthorized', 401);
-            }
-            $path = '';
-            if(!is_array($actionParams['resource'])){
-                $path .= '\\' . ucfirst($actionParams['resource']);
-            }else{
-                foreach ($actionParams['resource'] as $part) {
-                    $path .= '\\' . ucfirst($part);
-                }
-            }
-            $controller = new \ReflectionClass('TT\\Controller' . $path);
-            if (!$controller->isInstantiable()) {
-                throw new \Exception('Bad Request', 400);
-            }
-            $request = $this->sl->request;
-            try {
-                $method = $controller->getMethod($request->method);
-            } catch (\ReflectionException $e) {
-                throw new \Exception('Unsupported HTTP method ' . $request->method, 405);
-            }
-            if (!$method->isStatic()) {
-                $controller = $controller->newInstance($this->sl);
-                if (!$controller->checkUserPermission()) {
-                    throw new \Exception('Unauthorized', 401);
-                }
-                $method->invoke($controller);
-                $data = $controller->getResponse();
-                $code = $controller->getResponseCode();
-            } else {
-                throw new \Exception('Static methods not supported in Controllers', 500);
-            }
-            if (is_null($data)) {
-                throw new \Exception('Method not allowed', 405);
-            }
-
-            $response->setCode($code);
-            $response->setData($data);
-        } catch (\PDOException $e) {
-            $response->setError($e->getMessage());
-            $response->setCode(500);
-        } catch (\Exception $e) {
-            $response->setError($e->getMessage());
-            $response->setCode($e->getCode()?$e->getCode():500);
-        }
-        $this->sl->auth->setSessionVar('nonce', $nonce = $this->sl->auth->makeToken());
-        $response->setNonce($nonce);
-        return $response;
+        $builder = $this->sl->create('apicall');
+        return $builder->execute();
     }
 
 }

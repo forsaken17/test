@@ -21,12 +21,13 @@ class App {
     public function run() {
         try {
             $sl = Locator::instance();
-            $sl->request = Request::instance();
-            $action = Router::getAction($sl->request);
+            $sl->create('request');
+            $router = $sl->create('router', $sl->request);
+            $action = $router->getAction();
             $cfg = config();
-            $opt  = [
-                \PDO::MYSQL_ATTR_FOUND_ROWS   => true,
-                \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
+            $opt = [
+                \PDO::MYSQL_ATTR_FOUND_ROWS => true,
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                 \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
             ];
             $sl->db = new \PDO($cfg['dsn'], $cfg['dbuser'], $cfg['dbpassword'], $opt);

@@ -7,12 +7,12 @@ namespace TT;
  *
  * @author tt
  */
-class Request {
+class Request implements Injectable {
 
     private $params = [];
     private $headers = [];
 
-    private function __construct() {
+    public function __construct(Locator $sl) {
         $this->server = $_SERVER;
         $this->headers = $this->getHeaderList();
         $this->method = strtolower($this->server['REQUEST_METHOD']);
@@ -33,9 +33,9 @@ class Request {
 
     private static $instance;
 
-    public static function instance() {
+    public static function instance(Locator $sl) {
         if (null === static::$instance) {
-            static::$instance = new static();
+            static::$instance = new static($sl);
         }
         return static::$instance;
     }
@@ -57,14 +57,12 @@ class Request {
         return $this->params;
     }
 
-    public function get($name, $filter = FILTER_DEFAULT)
-    {
+    public function get($name, $filter = FILTER_DEFAULT) {
         $param = isset($this->params[$name]) ? $this->params[$name] : null;
         return filter_var($param, $filter);
     }
 
-    public function set($name, $val, $filter = FILTER_DEFAULT)
-    {
+    public function set($name, $val, $filter = FILTER_DEFAULT) {
         $this->params[$name] = filter_var($val, $filter);
     }
 

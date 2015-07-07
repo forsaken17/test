@@ -39,6 +39,6 @@ echo $header, "\n", $bodyRaw, "\n";
 $body = json_decode($bodyRaw, true);
 if (empty($body['error'])) {
     $data = $body['data'];
-    $nonce = $data['nonce'];
+    $nonce = $body['nonce'];
 }
 var_dump($body);
