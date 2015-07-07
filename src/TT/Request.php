@@ -57,9 +57,15 @@ class Request {
         return $this->params;
     }
 
-    public function get($name, $filter = null) {
+    public function get($name, $filter = FILTER_DEFAULT)
+    {
         $param = isset($this->params[$name]) ? $this->params[$name] : null;
         return filter_var($param, $filter);
+    }
+
+    public function set($name, $val, $filter = FILTER_DEFAULT)
+    {
+        $this->params[$name] = filter_var($val, $filter);
     }
 
 }

@@ -15,5 +15,8 @@ class Bxuser extends Entity {
         'Location' => '',
         'Age' => '',
     ];
+    protected $mapping = [
+        'id' => 'User-ID'
+    ];
 
 }

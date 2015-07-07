@@ -15,7 +15,9 @@ class Router {
         'test' => ['module' => 'Api'],
         'bxbookrating' => ['module' => 'Api', 'resource' => 'bxbookrating'],
         'bxbook' => ['module' => 'Api', 'resource' => 'bxbook'],
+        'bxbook/{isbn}' => ['module' => 'Api', 'resource' => 'bxbook'],
         'bxuser' => ['module' => 'Api', 'resource' => 'bxuser'],
+        'bxuser/{id}' => ['module' => 'Api', 'resource' => 'bxuser'],
         //
         'login' => ['module' => 'User', 'anonymity' => true],
         'register' => ['module' => 'User', 'anonymity' => true],
@@ -66,7 +68,10 @@ class Router {
             $rAction = explode('/', trim($val, '/'));
             $result = 0;
             for ($i = 0; $i < count($actionList); $i++) {
-                if (!empty($rAction[$i]) && ($rAction[$i] === $actionList[$i] || (preg_match('@\{[^\}]*}@', $rAction[$i]) && is_numeric($actionList[$i])))) {
+                if (!empty($rAction[$i]) && $rAction[$i] === $actionList[$i]) {
+                    $result++;
+                } else if (!empty($rAction[$i]) && preg_match('@\{([^\}]*)}@', $rAction[$i], $match) && !empty($actionList[$i])) {
+                    Request::instance()->set($match[1], $actionList[$i]);
                     $result++;
                 } else {
                     $result--;

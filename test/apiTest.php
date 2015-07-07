@@ -28,7 +28,9 @@ function request($url, $method, $auth = null, $postvars = null, $newSession = fa
     curl_setopt($ch, CURLOPT_TIMEOUT, 20);
     $response = curl_exec($ch);
     $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-
+    if(!empty($error = curl_error($ch))){
+        echo "Curl error: $error";
+    }
     curl_close($ch);
 
     return [substr($response, 0, $headerSize), substr($response, $headerSize)];
@@ -41,40 +43,52 @@ echo $header, "\n", $bodyRaw, "\n";
 $body = json_decode($bodyRaw, true);
 if (empty($body['error'])) {
     $data = $body['data'];
-    $nonce = $data['nonce'];
+    $nonce = $body['nonce'];
     echo 'session nonce: ', $nonce, "\n";
 } else {
     var_dump($body);
 }
-//post
+//##################################################################################
+
+//put
+$nonce = $body['nonce'];
 $cnonce = md5(uniqid('auth' . rand(1, 999), true));
 $time = time() + 60;
 $auth = ['cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce)];
-//var_dump($fields);
-//$postvars = http_build_query($fields);
+$fields = [
+        'Book-Title' => 'The Da Vinci Code',
+        'Book-Author' => 'Dan Brown',
+        'Year-Of-Publication' => '20030',
+        'Publisher' => 'Doubleday',
+        'Image-URL-S' => 'http://images.amazon.com/images/P/0385504209.01.THUMBZZZ.jpg',
+        'Image-URL-M' => 'http://images.amazon.com/images/P/0385504209.01.MZZZZZZZ.jpg',
+        'Image-URL-L' => 'http://images.amazon.com/images/P/0385504209.01.LZZZZZZZ.jpg',
+    ];
 
-$url = 'http://todo/api/bxbookrating';
+$postvars = http_build_query($fields);
+$url = 'http://ptest/api/bxbook';
 if (1) {
     $url .='&XDEBUG_SESSION_START=netbeans-xdebug';
 }
-list($header, $bodyRaw) = request($url, 'post', $auth);
+list($header, $bodyRaw) = request($url, 'put', $auth, $postvars);
 echo $header, "\n", $bodyRaw, "\n";
 $body = json_decode($bodyRaw, true);
 
 if (empty($body['error'])) {
     $data = $body['data'];
+    $lastBookId = $data[0];
     var_dump($data);
 } else {
     var_dump($body);
 }
-
 //get
-$nonce = $data['nonce'];
+$nonce = $body['nonce'];
 $cnonce = md5(uniqid('auth' . rand(1, 999), true));
 $time = time() + 60;
 $auth = ['cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce)];
 
-$url = 'http://todo/api/bxbook';
+$url = 'http://ptest/api/bxbook/'.$lastBookId;
+echo "$url\n\n";
 if (1) {
     $url .='&XDEBUG_SESSION_START=netbeans-xdebug';
 }
@@ -88,13 +102,14 @@ if (empty($body['error'])) {
 } else {
     var_dump($body);
 }
+
 //delete
-$nonce = $data['nonce'];
+$nonce = $body['nonce'];
 $cnonce = md5(uniqid('auth' . rand(1, 999), true));
 $time = time() + 60;
 $auth = ['cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce)];
 
-$url = 'http://todo/api/bxuser';
+$url = 'http://ptest/api/bxuser/999';
 if (1) {
     $url .='&XDEBUG_SESSION_START=netbeans-xdebug';
 }
@@ -108,17 +123,30 @@ if (empty($body['error'])) {
 } else {
     var_dump($body);
 }
-//put
-$nonce = $data['nonce'];
+
+//post
+$nonce = $body['nonce'];
 $cnonce = md5(uniqid('auth' . rand(1, 999), true));
 $time = time() + 60;
 $auth = ['cnonce' => $cnonce, 'time' => $time, 'hash' => hash('sha1', $cnonce . $time . $nonce)];
 
-$url = 'http://todo/api/bxuser';
+$fields = ['ISBN'=>'0385504209',
+        'Book-Title' => 'The Da Vinci Code',
+        'Book-Author' => 'Dan Brown',
+        'Year-Of-Publication' => '20030',
+        'Publisher' => 'Doubleday',
+        'Image-URL-S' => 'http://images.amazon.com/images/P/0385504209.01.THUMBZZZ.jpg',
+        'Image-URL-M' => 'http://images.amazon.com/images/P/0385504209.01.MZZZZZZZ.jpg',
+        'Image-URL-L' => 'http://images.amazon.com/images/P/0385504209.01.LZZZZZZZ.jpg',
+    ];
+
+$postvars = http_build_query($fields);
+
+$url = 'http://ptest/api/bxbook';
 if (1) {
     $url .='&XDEBUG_SESSION_START=netbeans-xdebug';
 }
-list($header, $bodyRaw) = request($url, 'put', $auth, http_build_query(['id' => 1]));
+list($header, $bodyRaw) = request($url, 'post', $auth, $postvars );
 echo $header, "\n", $bodyRaw, "\n";
 $body = json_decode($bodyRaw, true);
 
@@ -129,3 +157,5 @@ if (empty($body['error'])) {
     var_dump($body);
 }
 
+
+exit;

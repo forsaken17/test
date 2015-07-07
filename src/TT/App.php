@@ -24,8 +24,12 @@ class App {
             $sl->request = Request::instance();
             $action = Router::getAction($sl->request);
             $cfg = config();
-            $sl->db = new \PDO($cfg['dsn'], $cfg['dbuser'], $cfg['dbpassword']);
-            $sl->db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $opt  = [
+                \PDO::MYSQL_ATTR_FOUND_ROWS   => true,
+                \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            ];
+            $sl->db = new \PDO($cfg['dsn'], $cfg['dbuser'], $cfg['dbpassword'], $opt);
 
             $sl->dbm = new Model\Manager($sl->db);
             $sl->auth = new Auth();

@@ -9,6 +9,7 @@ namespace TT\Model;
 abstract class Entity {
 
     protected $dataholder = [];
+    protected $mapping = [];
 
     public function __construct(array $data = null) {
         if (null !== $data) {
@@ -27,9 +28,16 @@ abstract class Entity {
     public function getData() {
         return $this->dataholder;
     }
-
+    public function generateId()
+    {
+        $this->id = str_shuffle(substr(md5(time()),0,10));
+    }
     public static function getTableName() {
         return static::$tableName;
+    }
+
+    public function getMappedField($fieldName){
+        return array_key_exists($fieldName, $this->mapping) ? $this->mapping[$fieldName] : $fieldName;
     }
 
     /**
@@ -40,7 +48,7 @@ abstract class Entity {
      * @throws \Exception
      */
     public function __set($name, $value) {
-        $field = strtolower($name);
+        $field = $this->getMappedField(strtolower($name));
 
         if (!$this->dataFieldExists($field)) {
             throw new \Exception(
@@ -65,7 +73,7 @@ abstract class Entity {
      * @throws \Exception
      */
     public function __get($name) {
-        $field = strtolower($name);
+        $field = $this->getMappedField(strtolower($name));
 
         if (!$this->dataFieldExists($field)) {
             throw new \Exception(

@@ -85,97 +85,84 @@ class Manager {
         return new User($data);
     }
 
-    public function findTaskByParam(array $params, array $sort = []) {
-
-        $sqlSort = '';
-        if (!empty($sort['order']) && array_key_exists('direction', $sort)) {
-            $sqlSort = ' ORDER BY ' . $sort['order'] . ' ' . ('asc' == $sort['direction'] ? 'asc' : 'desc');
-        }
-        $where = 'where ';
-        $prepaired = [];
-        foreach ($params as $operator => $condition) {
-            $where .= (0 == $operator && !in_array((string) $operator, ['and', 'or'])) ? '' : $operator;
-            foreach ($condition as $key => $val) {
-                $where .= " $key = :$key ";
-                $prepaired[":$key"] = $val;
-            }
-        }
-        $tableName = Task::getTableName();
-
-        $sql = "SELECT id, title, priority, duedate, state, category, user_id "
-                . "from {$tableName} $where $sqlSort";
+    public function find(Entity $entity) {
+        $idVal = $entity->id;
+        $idField = $entity->getMappedField('id');
+        $tableName = $entity::getTableName();
+        $sql = "SELECT * from `$tableName` where $idField = :id";
         $sth = $this->db->prepare($sql);
-        $sth->execute($prepaired);
-        $sth->setFetchMode(\PDO::FETCH_ASSOC);
-        $data = $sth->fetchALL();
-
-        if (!$data) {
-            $data = [];
-        }
-        return $data;
-    }
-
-    public function findTaskById($id) {
-        $tableName = Task::getTableName();
-        $sth = $this->db->prepare("SELECT id, state from {$tableName} "
-                . "where id = :id");
-        $sth->execute([':id' => $id]);
-        $sth->setFetchMode(\PDO::FETCH_ASSOC);
+        $sth->execute([':id' => $idVal]);
         $data = $sth->fetch();
         if (!$data) {
-            throw new \Exception('task not found');
+            throw new \Exception("Entity with Id: $idVal not found");
         }
-        return new Task($data);
+        $entityClass = get_class($entity);
+        return new $entityClass($data);
     }
 
     public function save(Entity $entity) {
-        $data = $entity->getData();
-        if (empty($data['id'])) {
-            $this->insert($data, $entity::getTableName());
+        $result = 0;
+        if (empty($id = $entity->id)) {
+            $result = $this->insert($entity);
         } else {
-            $this->update($data, $entity::getTableName());
+            $result = $this->update($entity);
         }
+        return $result;
     }
 
-    public function delete($id, $table) {
-        $sth = $this->db->prepare("delete from $table where id = :id");
-        return $sth->execute([':id' => $id]);
+    public function delete(Entity $entity) {
+        $idVal = $entity->id;
+        $idField = $entity->getMappedField('id');
+        $sth = $this->db->prepare("delete from `{$entity::getTableName()}` where `$idField` = :id");
+        $result = $sth->execute([':id' => $idVal]);
+        return $result && $sth->rowCount();
     }
 
-    public function insert($data, $table) {
-
-        $fieldList = '(' . join(', ', array_keys($data)) . ')';
-        $valueList = '(:' . join(', :', array_keys($data)) . ')';
-        $sth = $this->db->prepare("INSERT INTO $table $fieldList "
-                . " value $valueList");
+    public function insert(Entity $entity) {
+        $entity->generateId();
+        $data = $entity->getData();
+        $table = $entity::getTableName();
+        $fieldList = '(`' . join('`, `', array_keys($data)) . '`)';
+        $keyList = array_keys($data);
+        array_walk($keyList, function (&$val) {
+            $val = str_replace(['-'], '', $val);
+        });
+        $valueList = '(:' . join(', :', $keyList) . ')';
+        $sql = "INSERT INTO `$table` $fieldList value $valueList";
+        $sth = $this->db->prepare($sql);
 
         $keyList = array_keys($data);
         array_walk($keyList, function (&$val) {
-            $val = ':' . $val;
+            $val = ':' . str_replace(['-'], '', $val);
         });
-        $result = array_combine($keyList, $data);
-        return $sth->execute($result);
+        $map = array_combine($keyList, $data);
+        $result = $sth->execute($map);
+        return $result && $sth->rowCount();
     }
 
-    public function update($data, $table) {
-
+    public function update(Entity $entity) {
+        $data = $entity->getData();
+        $table = $entity::getTableName();
         $prepared = [];
         foreach ($data as $key => $val) {
             if ($key !== 'id') {
-                $prepared["$key=:$key"] = $val;
+                $param = str_replace(['-'], '', $key);
+                $prepared["`$key`=:$param"] = $val;
             }
         }
 
         $fieldList = join(', ', array_keys($prepared));
-        $sth = $this->db->prepare("update $table SET $fieldList "
-                . "where id = :id");
+        $idField = $entity->getMappedField('id');
+        $sql = "update `$table` SET $fieldList where `$idField` = :id";
+        $sth = $this->db->prepare($sql);
 
         $keyList = array_keys($data);
         array_walk($keyList, function (&$val) {
-            $val = ':' . $val;
+            $val = ':' . str_replace(['-'], '', $val);
         });
-        $result = array_combine($keyList, $data);
-        return $sth->execute($result);
+        $map = array_merge(array_combine($keyList, $data),[':id' => $entity->id]);
+        $result = $sth->execute($map);
+        return $result && $sth->rowCount();
     }
 
 }

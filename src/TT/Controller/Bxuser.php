@@ -1,7 +1,7 @@
 <?php
 
 namespace TT\Controller;
-
+use TT\Model\Bxuser as UserModel;
 /**
  *
  * @author tt
@@ -9,22 +9,27 @@ namespace TT\Controller;
 class Bxuser extends Rest {
 
     public function get() {
-        $this->response = array('TestResponse' => 'I am GET response. Variables sent are - ' . http_build_query($this->request->getParams()));
+        $this->response = ['GET'];
         $this->responseCode = 200;
     }
 
     public function post() {
-        $this->response = array('TestResponse' => 'I am POST response. Variables sent are - ' . http_build_query($this->request->getParams()));
+        $this->response = ['POST'];
         $this->responseCode = 201;
     }
 
     public function put() {
-        $this->response = array('TestResponse' => 'I am PUT response. Variables sent are - ' . http_build_query($this->request->getParams()));
+        $this->response = ['PUT'];
         $this->responseCode = 200;
     }
 
     public function delete() {
-        $this->response = array('TestResponse' => 'I am DELETE response. Variables sent are - ' . http_build_query($this->request->getParams()));
+        $user = new UserModel();
+        $user->id = $this->request->get('id', FILTER_SANITIZE_NUMBER_INT);;
+        if(!$this->dbm->delete($user)){
+            throw new \Exception("Id: {$user->id} Not found", 400);
+        }
+        $this->response = [$user->id];
         $this->responseCode = 200;
     }
 

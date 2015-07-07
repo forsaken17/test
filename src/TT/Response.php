@@ -9,6 +9,7 @@ namespace TT;
  */
 class Response {
 
+    private $nonce;
     private $data = [];
     private $error = [];
     private static $type;
@@ -88,6 +89,10 @@ class Response {
     public function setData(array $data) {
         $this->data = $data;
     }
+    
+    public function setNonce($nonce) {
+        $this->nonce = $nonce;
+    }
 
     public function setError($msg) {
         return $this->error = $msg;
@@ -104,7 +109,7 @@ class Response {
     public function __toString() {
         $string = '';
 
-        $body = ['data' => $this->data, 'error' => $this->error];
+        $body = ['data' => $this->data, 'nonce' => $this->nonce, 'error' => $this->error];
         if ('json' === self::$type) {
             if (false === ($string = $this->getJson($body))) {
                 $string = $this->getJson($this->getJsonError());

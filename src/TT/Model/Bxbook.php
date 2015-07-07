@@ -20,5 +20,12 @@ class Bxbook extends Entity {
         'Image-URL-M' => '',
         'Image-URL-L' => '',
     ];
+    protected $mapping = [
+        'id' => 'ISBN',
+        'title' => 'Book-Title',
+        'author' => 'Book-Author',
+        'year' => 'Year-Of-Publication',
+        'publisher' => 'Publisher',
+    ];
 
 }

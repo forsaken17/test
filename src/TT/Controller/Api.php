@@ -27,7 +27,7 @@ class Api extends Front {
             }
             $this->sl->auth->setSessionVar('uid', $user->id);
             $this->sl->auth->setSessionVar('nonce', $this->sl->auth->makeToken());
-            $response->setData(['nonce' => $this->sl->auth->getSessionVar('nonce')]);
+            $response->setNonce($this->sl->auth->getSessionVar('nonce'));
         } catch (\Exception $e) {
             $response->setError($e->getMessage());
             $response->setCode($e->getCode());
@@ -47,8 +47,12 @@ class Api extends Front {
                 throw new \Exception('Unauthorized', 401);
             }
             $path = '';
-            foreach ($actionParams['resource'] as $part) {
-                $path .= '\\' . ucfirst($part);
+            if(!is_array($actionParams['resource'])){
+                $path .= '\\' . ucfirst($actionParams['resource']);
+            }else{
+                foreach ($actionParams['resource'] as $part) {
+                    $path .= '\\' . ucfirst($part);
+                }
             }
             $controller = new \ReflectionClass('TT\\Controller' . $path);
             if (!$controller->isInstantiable()) {
@@ -74,15 +78,18 @@ class Api extends Front {
             if (is_null($data)) {
                 throw new \Exception('Method not allowed', 405);
             }
-            $this->sl->auth->setSessionVar('nonce', $nonce = $this->sl->auth->makeToken());
-            $data['nonce'] = $nonce;
+
             $response->setCode($code);
             $response->setData($data);
+        } catch (\PDOException $e) {
+            $response->setError($e->getMessage());
+            $response->setCode(500);
         } catch (\Exception $e) {
             $response->setError($e->getMessage());
-            $response->setCode($e->getCode());
+            $response->setCode($e->getCode()?$e->getCode():500);
         }
-
+        $this->sl->auth->setSessionVar('nonce', $nonce = $this->sl->auth->makeToken());
+        $response->setNonce($nonce);
         return $response;
     }
 
