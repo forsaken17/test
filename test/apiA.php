@@ -1,9 +1,6 @@
 <?php
 
 $url = 'http://ptest/api/bxbookrating/ranking/?country=usa&limit=5&offset=1';
-if (1) {
-    $url .='&XDEBUG_SESSION_START=netbeans-xdebug';
-}
 
 function request($url, $method, $auth = null, $postvars = null, $newSession = false) {
     $cookie = 'cookie.txt';
@@ -12,7 +9,6 @@ function request($url, $method, $auth = null, $postvars = null, $newSession = fa
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
     curl_setopt($ch, CURLOPT_POSTFIELDS, $postvars);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//curl_setopt($ch, CURLOPT_VERBOSE, 1);
     curl_setopt($ch, CURLOPT_HEADER, 1);
     if ($auth) {
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: ' . json_encode($auth)]);
@@ -39,6 +35,5 @@ echo $header, "\n", $bodyRaw, "\n";
 $body = json_decode($bodyRaw, true);
 if (empty($body['error'])) {
     $data = $body['data'];
-    $nonce = $body['nonce'];
 }
 var_dump($body);
